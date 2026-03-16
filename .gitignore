@@ -1,0 +1,8 @@
+node_modules/
+uploads/
+.env
+.session-key
+audit.log
+audit.log.*
+extracted-data.json
+f1040.pdf

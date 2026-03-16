@@ -1,0 +1,227 @@
+{
+  "last_updated": "2025 tax year - verified March 2026, all One Big Beautiful Bill Act (OBBB) changes through July 4 2025 included",
+  "note": "Update this file each year when IRS publishes new inflation adjustments",
+
+  "federal_income_tax_brackets": {
+    "single": [
+      { "rate": 0.10, "min": 0,       "max": 11925  },
+      { "rate": 0.12, "min": 11926,   "max": 48475  },
+      { "rate": 0.22, "min": 48476,   "max": 103350 },
+      { "rate": 0.24, "min": 103351,  "max": 197300 },
+      { "rate": 0.32, "min": 197301,  "max": 250525 },
+      { "rate": 0.35, "min": 250526,  "max": 626350 },
+      { "rate": 0.37, "min": 626351,  "max": null   }
+    ],
+    "married_filing_jointly": [
+      { "rate": 0.10, "min": 0,       "max": 23850  },
+      { "rate": 0.12, "min": 23851,   "max": 96950  },
+      { "rate": 0.22, "min": 96951,   "max": 206700 },
+      { "rate": 0.24, "min": 206701,  "max": 394600 },
+      { "rate": 0.32, "min": 394601,  "max": 501050 },
+      { "rate": 0.35, "min": 501051,  "max": 751600 },
+      { "rate": 0.37, "min": 751601,  "max": null   }
+    ],
+    "head_of_household": [
+      { "rate": 0.10, "min": 0,       "max": 17000  },
+      { "rate": 0.12, "min": 17001,   "max": 64850  },
+      { "rate": 0.22, "min": 64851,   "max": 103350 },
+      { "rate": 0.24, "min": 103351,  "max": 197300 },
+      { "rate": 0.32, "min": 197301,  "max": 250500 },
+      { "rate": 0.35, "min": 250501,  "max": 626350 },
+      { "rate": 0.37, "min": 626351,  "max": null   }
+    ]
+  },
+
+  "standard_deductions": {
+    "single":                  15750,
+    "married_filing_jointly":  31500,
+    "head_of_household":       23625,
+    "additional_age_65_plus": {
+      "single": 2000,
+      "others": 1600
+    }
+  },
+
+  "long_term_capital_gains": {
+    "note": "Short-term capital gains are taxed as ordinary income",
+    "single": [
+      { "rate": 0.00, "min": 0,      "max": 48350  },
+      { "rate": 0.15, "min": 48351,  "max": 533400 },
+      { "rate": 0.20, "min": 533401, "max": null   }
+    ],
+    "married_filing_jointly": [
+      { "rate": 0.00, "min": 0,      "max": 96700  },
+      { "rate": 0.15, "min": 96701,  "max": 600050 },
+      { "rate": 0.20, "min": 600051, "max": null   }
+    ]
+  },
+
+  "tax_credits": {
+    "child_tax_credit": {
+      "amount_per_child":        2200,
+      "refundable_portion":      1700,
+      "phase_out_single":        200000,
+      "phase_out_mfj":           400000
+    },
+    "eitc_maximum": {
+      "three_or_more_children":  8046
+    },
+    "child_and_dependent_care": {
+      "credit_rate_range":       "20-35% of eligible expenses",
+      "max_expenses_one_child":  3000,
+      "max_expenses_two_plus":   6000
+    },
+    "american_opportunity_credit": {
+      "max_per_student":         2500,
+      "refundable_percent":      0.40,
+      "eligible_years":          4
+    }
+  },
+
+  "contribution_limits": {
+    "retirement": {
+      "401k_403b_employee":           23500,
+      "catch_up_age_50_59_or_64_plus": 7500,
+      "catch_up_ages_60_to_63":        11250,
+      "ira_roth_ira":                  7000,
+      "ira_catch_up_age_50_plus":      1000,
+      "roth_ira_phase_out_single": {
+        "min": 150000,
+        "max": 165000
+      },
+      "roth_ira_phase_out_mfj": {
+        "min": 236000,
+        "max": 246000
+      }
+    },
+    "health_accounts": {
+      "hsa_individual":         4300,
+      "hsa_family":             8550,
+      "hsa_catch_up_age_55_plus": 1000,
+      "fsa":                    3300,
+      "fsa_carryover":          660
+    }
+  },
+
+  "other_key_numbers": {
+    "standard_mileage_rate_business_per_mile": 0.70,
+    "self_employment_tax_rate":                0.153,
+    "self_employment_tax_deductible_portion":  0.50,
+    "student_loan_interest_deduction": {
+      "max":                    2500,
+      "phase_out_single": {
+        "min": 75000,
+        "max": 90000
+      },
+      "phase_out_mfj": {
+        "min": 155000,
+        "max": 185000
+      }
+    },
+    "social_security_benefit_taxation": {
+      "note": "Thresholds are NOT adjusted for inflation",
+      "formula": "Combined Income = AGI + nontaxable interest + 50% of SS benefits",
+      "tiers": [
+        {
+          "taxable_percent": 0,
+          "combined_income_single_max": 25000,
+          "combined_income_mfj_max":    32000
+        },
+        {
+          "taxable_percent": 0.50,
+          "combined_income_single_min": 25000,
+          "combined_income_single_max": 34000,
+          "combined_income_mfj_min":    32000,
+          "combined_income_mfj_max":    44000
+        },
+        {
+          "taxable_percent": 0.85,
+          "combined_income_single_min": 34000,
+          "combined_income_mfj_min":    44000
+        }
+      ]
+    },
+    "net_investment_income_tax": {
+      "rate":                         0.038,
+      "note": "Thresholds NOT adjusted for inflation",
+      "magi_threshold_single":        200000,
+      "magi_threshold_mfj":           250000,
+      "applies_to_lesser_of": "net investment income OR amount MAGI exceeds threshold",
+      "covered": ["interest", "dividends", "capital gains", "rental income", "royalties"],
+      "not_covered": ["Social Security benefits", "IRA distributions", "pension distributions"]
+    },
+    "additional_medicare_tax": {
+      "rate":                         0.009,
+      "applies_to": ["wages", "self-employment income"],
+      "threshold_single":             200000,
+      "threshold_mfj":                250000,
+      "note": "Employers withhold on wages over $200,000 regardless of filing status; reconciled on tax return"
+    },
+    "qualified_business_income_deduction": {
+      "rate":                         0.20,
+      "applies_to": ["self-employment income", "S-corp pass-through", "partnership pass-through"],
+      "does_not_apply_to": ["wages", "investment income", "specified service businesses above phase-out"],
+      "phase_out_single": {
+        "begins": 197300,
+        "fully_phased_out": 247300
+      },
+      "phase_out_mfj": {
+        "begins": 394600,
+        "fully_phased_out": 494600
+      }
+    },
+    "obbb_deductions_2025_2028": {
+      "tips_deduction": {
+        "max_single":                 25000,
+        "max_mfj":                    25000,
+        "phase_out_single_magi":      150000,
+        "phase_out_mfj_magi":         300000,
+        "requirements": "Tips must be reported on W-2 or 1099; still subject to payroll tax"
+      },
+      "overtime_deduction": {
+        "max_single":                 12500,
+        "max_mfj":                    25000,
+        "phase_out_single_magi":      150000,
+        "phase_out_mfj_magi":         300000,
+        "note": "Only FLSA-required overtime qualifies"
+      },
+      "senior_bonus_deduction": {
+        "eligibility":                "age 65+",
+        "amount_per_eligible_person": 6000,
+        "max_mfj_both_qualify":       12000,
+        "phase_out_single_magi":      75000,
+        "phase_out_mfj_magi":         150000,
+        "effective_years":            "2025-2028"
+      }
+    },
+    "gift_tax_exclusion_per_person": 19000,
+    "estate_tax_exclusion":          13990000,
+    "salt_deduction": {
+      "note": "Raised from $10,000 by the One Big Beautiful Bill Act, July 4 2025. Reverts to $10,000 in 2030.",
+      "cap_single_or_mfj":           40000,
+      "cap_married_filing_separately": 20000,
+      "floor":                       10000,
+      "phase_out": {
+        "single_or_mfj": {
+          "threshold_magi":          500000,
+          "reduction_rate":          0.30,
+          "floor":                   10000,
+          "effective_revert_at_magi": 600000
+        },
+        "married_filing_separately": {
+          "threshold_magi":          250000,
+          "reduction_rate":          0.30,
+          "floor":                   10000
+        }
+      },
+      "scheduled_increases": {
+        "2025": 40000,
+        "2026": 40400,
+        "2027": 40804,
+        "2028": 41212,
+        "2029": 41624,
+        "2030": 10000
+      }
+    }
+  }
+}

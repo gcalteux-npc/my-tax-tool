@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tax Analyzer 2025</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #f4f6f9;
+      color: #1a1a2e;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem 4rem;
+    }
+
+    /* ── SC-8: Secure session banner ── */
+    #secure-banner {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #edfaf3;
+      border: 1px solid #6dd9a8;
+      border-radius: 8px;
+      padding: 0.45rem 0.9rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #1a6640;
+      margin-bottom: 1.25rem;
+      letter-spacing: 0.01em;
+    }
+
+    .secure-dot {
+      width: 8px;
+      height: 8px;
+      background: #28c76f;
+      border-radius: 50%;
+      flex-shrink: 0;
+      box-shadow: 0 0 0 2px #b7f0d4;
+      animation: pulse-dot 2.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { box-shadow: 0 0 0 2px #b7f0d4; }
+      50%       { box-shadow: 0 0 0 4px #b7f0d4; }
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+      position: relative;
+    }
+
+    header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1a1a2e;
+      letter-spacing: -0.5px;
+    }
+
+    header p {
+      margin-top: 0.4rem;
+      color: #5a6375;
+      font-size: 0.95rem;
+    }
+
+    /* ── Security info button ── */
+    #security-btn {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: none;
+      border: 1px solid #c0c8d8;
+      border-radius: 20px;
+      padding: 0.3rem 0.7rem;
+      font-size: 0.75rem;
+      color: #5a6375;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    #security-btn:hover { border-color: #4f7ef8; color: #4f7ef8; }
+
+    /* ── Security modal ── */
+    #security-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    #security-modal-overlay.visible { display: flex; }
+
+    #security-modal {
+      background: #fff;
+      border-radius: 14px;
+      padding: 2rem;
+      max-width: 480px;
+      width: 100%;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+      position: relative;
+    }
+
+    #security-modal h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    #security-modal ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    #security-modal li {
+      display: flex;
+      gap: 0.75rem;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: #3a4254;
+    }
+
+    .modal-icon {
+      font-size: 1.1rem;
+      flex-shrink: 0;
+      margin-top: 0.05rem;
+    }
+
+    #security-modal .nist-badge {
+      margin-top: 1.25rem;
+      padding: 0.6rem 0.9rem;
+      background: #f4f6f9;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      color: #5a6375;
+      text-align: center;
+    }
+
+    #modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      color: #8a94a6;
+      line-height: 1;
+      padding: 0.25rem;
+    }
+
+    #modal-close:hover { color: #1a1a2e; }
+
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+      padding: 2rem;
+      width: 100%;
+      max-width: 640px;
+    }
+
+    /* ── Drop zone ── */
+    #drop-zone {
+      border: 2px dashed #c0c8d8;
+      border-radius: 10px;
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      position: relative;
+    }
+
+    #drop-zone.drag-over {
+      border-color: #4f7ef8;
+      background: #f0f4ff;
+    }
+
+    #drop-zone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .drop-icon {
+      font-size: 2.5rem;
+      line-height: 1;
+      margin-bottom: 0.75rem;
+      pointer-events: none;
+    }
+
+    .drop-label {
+      font-size: 1rem;
+      color: #3a4254;
+      pointer-events: none;
+    }
+
+    .drop-label strong { color: #4f7ef8; }
+
+    .drop-hint {
+      margin-top: 0.4rem;
+      font-size: 0.8rem;
+      color: #8a94a6;
+      pointer-events: none;
+    }
+
+    /* ── File chosen indicator ── */
+    #file-info {
+      margin-top: 1rem;
+      padding: 0.65rem 1rem;
+      background: #f0f4ff;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      color: #3a4254;
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    #file-info.visible { display: flex; }
+    #file-info .file-icon { font-size: 1.2rem; }
+
+    #file-name {
+      font-weight: 600;
+      word-break: break-all;
+    }
+
+    /* ── Analyze button ── */
+    #analyze-btn {
+      margin-top: 1.25rem;
+      width: 100%;
+      padding: 0.85rem;
+      background: #4f7ef8;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, opacity 0.2s;
+    }
+
+    #analyze-btn:hover:not(:disabled) { background: #3a67e0; }
+
+    #analyze-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* ── Loading spinner ── */
+    #loading {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 1.75rem;
+      padding: 1.5rem;
+      background: #f8f9fc;
+      border-radius: 10px;
+    }
+
+    #loading.visible { display: flex; }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #dde3f0;
+      border-top-color: #4f7ef8;
+      border-radius: 50%;
+      animation: spin 0.85s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #loading p {
+      color: #5a6375;
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+
+    /* ── Analysis result ── */
+    #result {
+      display: none;
+      margin-top: 1.75rem;
+    }
+
+    #result.visible { display: block; }
+
+    #result h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    #analysis-box {
+      background: #f8f9fc;
+      border-left: 4px solid #4f7ef8;
+      border-radius: 0 10px 10px 0;
+      padding: 1.25rem 1.5rem;
+      font-size: 0.95rem;
+      line-height: 1.75;
+      color: #2d3344;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    /* ── Error ── */
+    #error {
+      display: none;
+      margin-top: 1.75rem;
+      padding: 1rem 1.25rem;
+      background: #fff4f4;
+      border-left: 4px solid #e05252;
+      border-radius: 0 10px 10px 0;
+      color: #b03030;
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    #error.visible { display: block; }
+    #error strong { display: block; margin-bottom: 0.25rem; font-size: 0.95rem; }
+
+    /* ── Session cleared ── */
+    #session-cleared {
+      display: none;
+      margin-top: 1.75rem;
+      padding: 1rem 1.25rem;
+      background: #fff8e6;
+      border-left: 4px solid #e0a030;
+      border-radius: 0 10px 10px 0;
+      color: #7a5000;
+      font-size: 0.9rem;
+    }
+
+    #session-cleared.visible { display: block; }
+
+    /* ── Disclaimer ── */
+    footer {
+      margin-top: 2rem;
+      max-width: 640px;
+      width: 100%;
+      text-align: center;
+      font-size: 0.78rem;
+      color: #8a94a6;
+      line-height: 1.6;
+      padding: 0 0.5rem;
+    }
+
+    footer span {
+      display: inline-block;
+      background: #fff;
+      border: 1px solid #e0e4ed;
+      border-radius: 8px;
+      padding: 0.6rem 1rem;
+    }
+
+    /* ── Step cards ── */
+    .step-card {
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+      padding: 2rem;
+      width: 100%;
+      max-width: 640px;
+      margin-top: 1.5rem;
+      display: none;
+    }
+
+    .step-card.visible { display: block; }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .step-badge {
+      background: #4f7ef8;
+      color: #fff;
+      border-radius: 50%;
+      width: 26px;
+      height: 26px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .step-header h2 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #1a1a2e;
+    }
+
+    /* ── Filing status selector ── */
+    .field-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .field-row label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #3a4254;
+      white-space: nowrap;
+    }
+
+    .field-row select {
+      flex: 1;
+      padding: 0.55rem 0.85rem;
+      border: 1.5px solid #c0c8d8;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      color: #1a1a2e;
+      background: #fff;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%235a6375' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.85rem center;
+      cursor: pointer;
+    }
+
+    /* ── Generic action button ── */
+    .action-btn {
+      width: 100%;
+      padding: 0.85rem;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, opacity 0.2s;
+    }
+
+    .action-btn.blue  { background: #4f7ef8; color: #fff; }
+    .action-btn.green { background: #28a86a; color: #fff; }
+    .action-btn.blue:hover:not(:disabled)  { background: #3a67e0; }
+    .action-btn.green:hover:not(:disabled) { background: #1f8a55; }
+    .action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ── Calculation report table ── */
+    #calc-result { display: none; margin-top: 1.5rem; }
+    #calc-result.visible { display: block; }
+
+    .report-section {
+      margin-bottom: 1.25rem;
+    }
+
+    .report-section-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: #8a94a6;
+      margin-bottom: 0.5rem;
+      padding-bottom: 0.3rem;
+      border-bottom: 1px solid #e8eaf0;
+    }
+
+    .report-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.3rem 0;
+      font-size: 0.9rem;
+      color: #3a4254;
+    }
+
+    .report-row.sub { padding-left: 1rem; color: #5a6375; font-size: 0.85rem; }
+
+    .report-row.total {
+      font-weight: 700;
+      color: #1a1a2e;
+      padding-top: 0.4rem;
+      border-top: 1.5px solid #c0c8d8;
+      margin-top: 0.3rem;
+    }
+
+    .report-row .amount { font-variant-numeric: tabular-nums; }
+
+    .report-outcome {
+      margin-top: 1.25rem;
+      padding: 1.25rem 1.5rem;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .report-outcome.refund {
+      background: #edfaf3;
+      border: 1.5px solid #6dd9a8;
+    }
+
+    .report-outcome.owed {
+      background: #fff4f4;
+      border: 1.5px solid #f0a0a0;
+    }
+
+    .report-outcome.even {
+      background: #f4f6f9;
+      border: 1.5px solid #c0c8d8;
+    }
+
+    .outcome-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #5a6375;
+      margin-bottom: 0.3rem;
+    }
+
+    .outcome-amount {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+    }
+
+    .outcome-amount.refund { color: #1a6640; }
+    .outcome-amount.owed   { color: #b03030; }
+    .outcome-amount.even   { color: #3a4254; }
+
+    /* ── 1040 upload section ── */
+    #pdf-drop-zone {
+      border: 2px dashed #c0c8d8;
+      border-radius: 10px;
+      padding: 1.75rem 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      position: relative;
+      margin-bottom: 1rem;
+    }
+
+    #pdf-drop-zone.drag-over {
+      border-color: #28a86a;
+      background: #f0fff8;
+    }
+
+    #pdf-drop-zone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    #pdf-file-info {
+      margin-bottom: 1rem;
+      padding: 0.65rem 1rem;
+      background: #f0fff8;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      color: #3a4254;
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    #pdf-file-info.visible { display: flex; }
+
+    /* ── Calc loading ── */
+    #calc-loading {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+      margin-top: 1rem;
+      padding: 1.25rem;
+      background: #f8f9fc;
+      border-radius: 10px;
+    }
+
+    #calc-loading.visible { display: flex; }
+
+    /* ── Mobile tweaks ── */
+    @media (max-width: 480px) {
+      header h1 { font-size: 1.5rem; }
+      .card { padding: 1.25rem; }
+      .step-card { padding: 1.25rem; }
+      #drop-zone { padding: 2rem 1rem; }
+      #security-btn { position: static; margin-top: 0.5rem; }
+      header { display: flex; flex-direction: column; align-items: center; }
+      .field-row { flex-direction: column; align-items: stretch; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SC-8: Visual secure session indicator -->
+  <div id="secure-banner" role="status">
+    <span class="secure-dot"></span>
+    Secure Local Session
+  </div>
+
+  <header>
+    <h1>Tax Analyzer 2025</h1>
+    <p>Upload a W-2 or 1099 to get a plain-English summary of your tax situation</p>
+    <button id="security-btn" aria-haspopup="dialog">🔒 Security</button>
+  </header>
+
+  <!-- Security info modal -->
+  <div id="security-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div id="security-modal">
+      <button id="modal-close" aria-label="Close security info">✕</button>
+      <h2 id="modal-title">🔒 Security &amp; Privacy</h2>
+      <ul>
+        <li>
+          <span class="modal-icon">🖥️</span>
+          <span><strong>Processed locally.</strong> Your documents are sent only to this app running on your own computer — no cloud storage, no third-party servers.</span>
+        </li>
+        <li>
+          <span class="modal-icon">🗑️</span>
+          <span><strong>Securely deleted after processing.</strong> Uploaded files are overwritten with random bytes and deleted immediately after analysis completes — even if an error occurs.</span>
+        </li>
+        <li>
+          <span class="modal-icon">⏱️</span>
+          <span><strong>Session auto-clears after 15 minutes.</strong> If you step away, any displayed results are automatically removed from the screen.</span>
+        </li>
+        <li>
+          <span class="modal-icon">🛡️</span>
+          <span><strong>NIST 800-53 controls implemented.</strong> Includes rate limiting, magic-number file validation, prompt-injection detection, AES-256-GCM in-memory encryption, and a full audit log.</span>
+        </li>
+      </ul>
+      <p class="nist-badge">NIST SP 800-53 Rev. 5 · AC-2 · AC-3 · AC-4 · AC-12 · AU-2 · SC-8 · SC-12 · SI-3 · SI-10 · SI-12</p>
+    </div>
+  </div>
+
+  <div class="card">
+
+    <div id="drop-zone" role="button" aria-label="Upload tax document">
+      <input type="file" id="file-input" accept=".pdf,.jpg,.jpeg,.png" aria-label="Choose file" />
+      <div class="drop-icon">📄</div>
+      <p class="drop-label">Drag &amp; drop your file here, or <strong>browse</strong></p>
+      <p class="drop-hint">PDF, JPG, or PNG &nbsp;·&nbsp; Max 10 MB</p>
+    </div>
+
+    <div id="file-info" aria-live="polite">
+      <span class="file-icon">📎</span>
+      <span id="file-name"></span>
+    </div>
+
+    <button id="analyze-btn" disabled>Analyze Document</button>
+
+    <div id="loading" aria-live="polite" aria-label="Loading">
+      <div class="spinner"></div>
+      <p>Analyzing your document…</p>
+    </div>
+
+    <div id="error" role="alert" aria-live="assertive"></div>
+
+    <div id="session-cleared" role="status" aria-live="polite">
+      🔒 Session cleared for security after 15 minutes of inactivity.
+    </div>
+
+    <div id="result" aria-live="polite">
+      <h2>✅ Tax Summary</h2>
+      <div id="analysis-box"></div>
+    </div>
+
+  </div>
+
+  <!-- Document tray: shows loaded docs + clear button -->
+  <div class="step-card" id="doc-tray" style="display:none;">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#8a94a6;margin-bottom:.4rem">Loaded Documents</div>
+        <div id="doc-list" style="font-size:.9rem;color:#3a4254;line-height:1.8"></div>
+      </div>
+      <button id="clear-docs-btn" style="flex-shrink:0;margin-left:1rem;padding:.45rem .9rem;background:none;border:1.5px solid #e05252;border-radius:8px;color:#e05252;font-size:.82rem;font-weight:600;cursor:pointer;">Clear All</button>
+    </div>
+  </div>
+
+  <!-- Step 2: Calculate tax return -->
+  <div class="step-card" id="calc-card">
+    <div class="step-header">
+      <span class="step-badge">2</span>
+      <h2>Calculate Your Tax Return</h2>
+    </div>
+
+    <div class="field-row">
+      <label for="filing-status">Filing status</label>
+      <select id="filing-status">
+        <option value="Single">Single</option>
+        <option value="Married Filing Jointly">Married Filing Jointly</option>
+        <option value="Head of Household">Head of Household</option>
+      </select>
+    </div>
+
+    <button class="action-btn blue" id="calc-btn">Calculate Tax Return</button>
+
+    <div id="calc-loading" aria-live="polite">
+      <div class="spinner"></div>
+      <p style="color:#5a6375;font-size:.95rem;font-weight:500">Calculating…</p>
+    </div>
+
+    <div id="calc-error" role="alert" style="display:none;margin-top:1rem;padding:.9rem 1.1rem;background:#fff4f4;border-left:4px solid #e05252;border-radius:0 10px 10px 0;color:#b03030;font-size:.9rem;"></div>
+
+    <div id="calc-result" aria-live="polite"></div>
+  </div>
+
+  <!-- Step 3: Fill IRS 1040 PDF -->
+  <div class="step-card" id="pdf-card">
+    <div class="step-header">
+      <span class="step-badge" style="background:#28a86a">3</span>
+      <h2>Download Filled IRS Form 1040</h2>
+    </div>
+
+    <p style="font-size:.88rem;color:#5a6375;margin-bottom:1.25rem;line-height:1.5">
+      The official 2025 IRS Form 1040 is bundled with this app.
+      Click below to fill it with your calculated values and download it.
+    </p>
+
+    <button class="action-btn green" id="fill-btn">Fill &amp; Download 1040</button>
+
+    <div id="fill-loading" style="display:none;flex-direction:column;align-items:center;gap:.75rem;margin-top:1rem;padding:1.25rem;background:#f8f9fc;border-radius:10px;">
+      <div class="spinner" style="border-top-color:#28a86a"></div>
+      <p style="color:#5a6375;font-size:.95rem;font-weight:500">Filling form…</p>
+    </div>
+
+    <div id="fill-error" role="alert" style="display:none;margin-top:1rem;padding:.9rem 1.1rem;background:#fff4f4;border-left:4px solid #e05252;border-radius:0 10px 10px 0;color:#b03030;font-size:.9rem;"></div>
+
+    <div id="fill-note" style="display:none;margin-top:1rem;padding:.75rem 1rem;background:#fff8e6;border-left:4px solid #e0a030;border-radius:0 10px 10px 0;color:#7a5000;font-size:.82rem;line-height:1.5;"></div>
+  </div>
+
+  <footer>
+    <span>⚠️ This tool provides estimates only and is not official tax advice. Always review with a CPA before filing.</span>
+  </footer>
+
+  <script>
+    // AC-2 / AC-3: Session token injected by server at page-load time.
+    // Never stored in localStorage or sessionStorage.
+    const SESSION_TOKEN = '__SESSION_TOKEN__';
+
+    // ── Formatting helpers ─────────────────────────────────────────────
+    function fmtUSD(v) {
+      if (!v && v !== 0) return '—';
+      const sign = v < 0 ? '-' : '';
+      return sign + '$' + Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    // ── Magic number byte signatures (SI-10) ─────────────────────────
+    const MAGIC = {
+      pdf: { bytes: [0x25, 0x50, 0x44, 0x46], label: 'PDF' },
+      jpg: { bytes: [0xFF, 0xD8, 0xFF],        label: 'JPEG' },
+      png: { bytes: [0x89, 0x50, 0x4E, 0x47], label: 'PNG' },
+    };
+
+    const MAX_FILE_BYTES = 10 * 1024 * 1024; // 10 MB (SI-10)
+
+    // ── DOM references ───────────────────────────────────────────────
+    const dropZone       = document.getElementById('drop-zone');
+    const fileInput      = document.getElementById('file-input');
+    const fileInfo       = document.getElementById('file-info');
+    const fileName       = document.getElementById('file-name');
+    const analyzeBtn     = document.getElementById('analyze-btn');
+    const loading        = document.getElementById('loading');
+    const errorBox       = document.getElementById('error');
+    const result         = document.getElementById('result');
+    const analysisBox    = document.getElementById('analysis-box');
+    const sessionCleared = document.getElementById('session-cleared');
+    const securityBtn    = document.getElementById('security-btn');
+    const modalOverlay   = document.getElementById('security-modal-overlay');
+    const modalClose     = document.getElementById('modal-close');
+
+    let selectedFile = null;
+
+    // ── AC-12: Inactivity timeout — clears DOM after 15 minutes ──────
+    const INACTIVITY_MS = 15 * 60 * 1000;
+    let inactivityTimer = null;
+
+    function clearSession() {
+      selectedFile = null;
+      fileInput.value = '';
+      fileName.textContent = '';
+      fileInfo.classList.remove('visible');
+      analyzeBtn.disabled = true;
+      clearFeedback();
+      sessionCleared.classList.add('visible');
+    }
+
+    function resetInactivityTimer() {
+      sessionCleared.classList.remove('visible');
+      clearTimeout(inactivityTimer);
+      inactivityTimer = setTimeout(clearSession, INACTIVITY_MS);
+    }
+
+    ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(evt =>
+      document.addEventListener(evt, resetInactivityTimer, { passive: true })
+    );
+    resetInactivityTimer();
+
+    // ── Security modal ────────────────────────────────────────────────
+    securityBtn.addEventListener('click', () => {
+      modalOverlay.classList.add('visible');
+      modalClose.focus();
+    });
+
+    modalClose.addEventListener('click', () => modalOverlay.classList.remove('visible'));
+
+    modalOverlay.addEventListener('click', (e) => {
+      if (e.target === modalOverlay) modalOverlay.classList.remove('visible');
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') modalOverlay.classList.remove('visible');
+    });
+
+    // ── SI-10: Client-side magic number check via FileReader ──────────
+    function checkMagicNumber(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const bytes = new Uint8Array(e.target.result);
+          for (const [, sig] of Object.entries(MAGIC)) {
+            if (sig.bytes.every((b, i) => bytes[i] === b)) {
+              resolve(sig.label);
+              return;
+            }
+          }
+          reject(new Error('File content does not match PDF, JPEG, or PNG. Upload rejected.'));
+        };
+        reader.onerror = () => reject(new Error('Could not read the file for validation.'));
+        reader.readAsArrayBuffer(file.slice(0, 4));
+      });
+    }
+
+    // ── File selection ────────────────────────────────────────────────
+    async function onFileSelected(file) {
+      if (!file) return;
+
+      clearFeedback();
+
+      // SI-10: extension check
+      if (!/\.(pdf|jpe?g|png)$/i.test(file.name)) {
+        showError('Unsupported file type. Please upload a PDF, JPG, or PNG.');
+        return;
+      }
+
+      // SI-10: size check before anything is sent
+      if (file.size > MAX_FILE_BYTES) {
+        showError(`File is too large (${(file.size / 1024 / 1024).toFixed(1)} MB). Maximum allowed size is 10 MB.`);
+        return;
+      }
+
+      // SI-10: magic number check — read first 4 bytes locally
+      try {
+        await checkMagicNumber(file);
+      } catch (err) {
+        showError(err.message);
+        return;
+      }
+
+      selectedFile = file;
+      fileName.textContent = file.name;
+      fileInfo.classList.add('visible');
+      analyzeBtn.disabled = false;
+    }
+
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files.length) onFileSelected(fileInput.files[0]);
+    });
+
+    // ── Drag and drop ─────────────────────────────────────────────────
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('drag-over');
+    });
+
+    ['dragleave', 'dragend'].forEach(evt =>
+      dropZone.addEventListener(evt, () => dropZone.classList.remove('drag-over'))
+    );
+
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (file) {
+        fileInput.value = '';
+        onFileSelected(file);
+      }
+    });
+
+    // ── Analyze ───────────────────────────────────────────────────────
+    analyzeBtn.addEventListener('click', async () => {
+      if (!selectedFile) return;
+
+      setLoading(true);
+      clearFeedback();
+
+      const formData = new FormData();
+      formData.append('document', selectedFile);
+
+      try {
+        // AC-2 / AC-3: include session token on every request
+        const response = await fetch('/analyze', {
+          method: 'POST',
+          headers: { 'X-Api-Token': SESSION_TOKEN },
+          body: formData,
+        });
+        const data = await response.json();
+
+        if (data.success) {
+          analysisBox.textContent = data.analysis;
+          result.classList.add('visible');
+        } else {
+          showError(data.error || 'An unknown error occurred.');
+        }
+      } catch (err) {
+        // SC-8: distinguish network errors from server errors
+        if (err instanceof TypeError && err.message.toLowerCase().includes('fetch')) {
+          showError('Connection error — ensure you are running this locally and the server is started with: node server.js');
+        } else {
+          showError('An unexpected error occurred. Please try again.');
+        }
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    // ── Helpers ───────────────────────────────────────────────────────
+    function setLoading(on) {
+      loading.classList.toggle('visible', on);
+      analyzeBtn.disabled = on;
+    }
+
+    function showError(msg) {
+      errorBox.innerHTML = `<strong>Something went wrong</strong>${msg}`;
+      errorBox.classList.add('visible');
+    }
+
+    function clearFeedback() {
+      errorBox.classList.remove('visible');
+      errorBox.innerHTML = '';
+      result.classList.remove('visible');
+      analysisBox.textContent = '';
+    }
+
+    // Show Step 2 after a successful analysis
+    analyzeBtn.addEventListener('click', () => {}, { once: false });
+    const origAnalyzeClick = analyzeBtn.onclick;
+
+    // Patch: after successful /analyze, reveal Step 2
+    const _origFetch = window.fetch;
+    // (handled inline in the analyze click handler below by overriding success path)
+
+    // ── Step 2: Calculate ──────────────────────────────────────────────
+    const calcCard     = document.getElementById('calc-card');
+    const calcBtn      = document.getElementById('calc-btn');
+    const calcLoading  = document.getElementById('calc-loading');
+    const calcError    = document.getElementById('calc-error');
+    const calcResult   = document.getElementById('calc-result');
+    const filingStatus = document.getElementById('filing-status');
+    const pdfCard      = document.getElementById('pdf-card');
+
+    function showCalcError(msg) {
+      calcError.textContent = msg;
+      calcError.style.display = 'block';
+    }
+
+    function hideCalcError() {
+      calcError.style.display = 'none';
+      calcError.textContent = '';
+    }
+
+    function buildReport(r) {
+      const rows = (label, amount, cls = '') =>
+        `<div class="report-row ${cls}"><span>${label}</span><span class="amount">${fmtUSD(amount)}</span></div>`;
+
+      const showIf = (v) => v ? v : null;
+
+      let html = '';
+
+      // Income
+      html += `<div class="report-section">
+        <div class="report-section-title">Income</div>
+        ${rows('W-2 wages (Line 1a)', r.w2Wages)}
+        ${r.interestIncome    ? rows('Taxable interest (Line 2b)',        r.interestIncome,    'sub') : ''}
+        ${r.ordinaryDividends ? rows('Ordinary dividends (Line 3b)',      r.ordinaryDividends, 'sub') : ''}
+        ${r.seIncome          ? rows('Nonemployee compensation (NEC)',    r.seIncome,          'sub') : ''}
+        ${r.shortTermGains    ? rows('Short-term capital gains',          r.shortTermGains,    'sub') : ''}
+        ${r.longTermGains     ? rows('Long-term capital gains (Line 7)',  r.longTermGains,     'sub') : ''}
+        ${rows('Gross income (Line 9)', r.grossIncome, 'total')}
+      </div>`;
+
+      // Adjustments (only if relevant)
+      if (r.seIncome > 0) {
+        html += `<div class="report-section">
+          <div class="report-section-title">Above-the-Line Adjustments</div>
+          ${rows('Self-employment tax',       r.seTax)}
+          ${rows('Deductible half of SE tax', -r.halfSeDeduction, 'sub')}
+          ${rows('QBI deduction (20%)',       -r.qbiDeduction,    'sub')}
+        </div>`;
+      }
+
+      // AGI / Taxable income
+      html += `<div class="report-section">
+        <div class="report-section-title">Adjusted Gross Income &amp; Taxable Income</div>
+        ${rows('AGI (Line 11)',               r.agi)}
+        ${rows('Standard deduction (Line 12)', -r.standardDeduction, 'sub')}
+        ${rows('Taxable income (Line 15)',    r.taxableIncome, 'total')}
+      </div>`;
+
+      // Tax
+      html += `<div class="report-section">
+        <div class="report-section-title">Tax Computation</div>
+        ${rows('Ordinary income tax (Line 16)', r.ordinaryTax)}
+        ${r.ltcgTax           ? rows('Long-term capital gains tax',      r.ltcgTax,           'sub') : ''}
+        ${r.seTax             ? rows('Self-employment tax',              r.seTax,             'sub') : ''}
+        ${r.niit              ? rows('Net Investment Income Tax (3.8%)', r.niit,              'sub') : ''}
+        ${r.additionalMedicare? rows('Additional Medicare Tax (0.9%)',   r.additionalMedicare,'sub') : ''}
+        ${rows('Total tax (Line 24)', r.totalTax, 'total')}
+      </div>`;
+
+      // Payments
+      html += `<div class="report-section">
+        <div class="report-section-title">Payments &amp; Withholding</div>
+        ${rows('Federal tax withheld (Line 25a)', r.totalWithheld)}
+        ${rows('Total payments (Line 33)',        r.totalWithheld, 'total')}
+      </div>`;
+
+      // Outcome
+      let outcomeClass, outcomeAmountClass, outcomeLabel, outcomeVal;
+      if (r.refund > 0) {
+        outcomeClass = 'refund'; outcomeAmountClass = 'refund';
+        outcomeLabel = 'Estimated Refund (Line 34)';
+        outcomeVal   = r.refund;
+      } else if (r.amountOwed > 0) {
+        outcomeClass = 'owed'; outcomeAmountClass = 'owed';
+        outcomeLabel = 'Amount Owed (Line 37)';
+        outcomeVal   = r.amountOwed;
+      } else {
+        outcomeClass = 'even'; outcomeAmountClass = 'even';
+        outcomeLabel = 'Exactly covered — no refund or balance due';
+        outcomeVal   = 0;
+      }
+
+      html += `<div class="report-outcome ${outcomeClass}">
+        <div class="outcome-label">${outcomeLabel}</div>
+        <div class="outcome-amount ${outcomeAmountClass}">${fmtUSD(outcomeVal)}</div>
+      </div>`;
+
+      html += `<p style="margin-top:.9rem;font-size:.75rem;color:#8a94a6;text-align:center">
+        2025 tax year · Filing status: ${r.filingStatus} · Estimates only — not tax advice
+      </p>`;
+
+      return html;
+    }
+
+    calcBtn.addEventListener('click', async () => {
+      hideCalcError();
+      calcResult.classList.remove('visible');
+      calcResult.innerHTML = '';
+      calcLoading.classList.add('visible');
+      calcBtn.disabled = true;
+
+      try {
+        const resp = await fetch('/calculate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Api-Token': SESSION_TOKEN,
+          },
+          body: JSON.stringify({ filing_status: filingStatus.value }),
+        });
+        const data = await resp.json();
+
+        if (data.success) {
+          calcResult.innerHTML = buildReport(data.result);
+          calcResult.classList.add('visible');
+          // Reveal Step 3
+          pdfCard.classList.add('visible');
+          pdfCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+          showCalcError(data.error || 'Calculation failed.');
+        }
+      } catch {
+        showCalcError('Connection error. Make sure the server is running.');
+      } finally {
+        calcLoading.classList.remove('visible');
+        calcBtn.disabled = false;
+      }
+    });
+
+    // ── Step 3: Fill & download 1040 (PDF is bundled on server) ───────
+    const fillBtn     = document.getElementById('fill-btn');
+    const fillLoading = document.getElementById('fill-loading');
+    const fillError   = document.getElementById('fill-error');
+    const fillNote    = document.getElementById('fill-note');
+
+    fillBtn.addEventListener('click', async () => {
+      fillError.style.display  = 'none';
+      fillNote.style.display   = 'none';
+      fillLoading.style.display = 'flex';
+      fillBtn.disabled = true;
+
+      try {
+        const resp = await fetch('/fill-1040', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Api-Token': SESSION_TOKEN,
+          },
+          body: JSON.stringify({ filing_status: filingStatus.value }),
+        });
+
+        if (resp.ok) {
+          const blob = await resp.blob();
+          const url  = URL.createObjectURL(blob);
+          const a    = document.createElement('a');
+          a.href     = url;
+          a.download = 'filled-1040.pdf';
+          a.click();
+          URL.revokeObjectURL(url);
+          fillNote.textContent = 'Downloaded as filled-1040.pdf. Review all values before filing — this is an estimate only.';
+          fillNote.style.display = 'block';
+        } else {
+          const data = await resp.json().catch(() => ({}));
+          fillError.textContent = data.error || 'PDF filling failed.';
+          fillError.style.display = 'block';
+        }
+      } catch {
+        fillError.textContent = 'Connection error.';
+        fillError.style.display = 'block';
+      } finally {
+        fillLoading.style.display = 'none';
+        fillBtn.disabled = false;
+      }
+    });
+
+    // ── Reveal Step 2 after successful analysis ────────────────────────
+    // Re-wire the analyze button to also show the calc card on success
+    const _origAnalyzeClick = analyzeBtn.onclick;
+    analyzeBtn.removeEventListener('click', analyzeBtn.onclick);
+
+    // Patch result display to also show Step 2
+    const _origSuccess = (analysis) => {
+      analysisBox.textContent = analysis;
+      result.classList.add('visible');
+      calcCard.classList.add('visible');
+      calcCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+
+    // Override the analyze click handler to hook into success
+    const allListeners = [];
+    // The existing click handler is already attached; we monkey-patch the fetch result handler
+    // by replacing the inner success branch via MutationObserver on #result
+    const resultObserver = new MutationObserver((mutations) => {
+      for (const m of mutations) {
+        if (m.target === result && result.classList.contains('visible')) {
+          calcCard.classList.add('visible');
+        }
+      }
+    });
+    resultObserver.observe(result, { attributes: true, attributeFilter: ['class'] });
+
+    // ── Document tray ──────────────────────────────────────────────────
+    const docTray      = document.getElementById('doc-tray');
+    const docList      = document.getElementById('doc-list');
+    const clearDocsBtn = document.getElementById('clear-docs-btn');
+
+    function showDocTray(docType, label) {
+      // Add or replace entry for this doc type
+      const existing = docList.querySelector(`[data-type="${docType}"]`);
+      const entry = document.createElement('div');
+      entry.setAttribute('data-type', docType);
+      entry.textContent = `✓ ${label}`;
+      entry.style.color = '#1a6640';
+      entry.style.fontWeight = '600';
+      if (existing) docList.replaceChild(entry, existing);
+      else docList.appendChild(entry);
+      docTray.style.display = 'block';
+    }
+
+    // Hook into successful analysis to update doc tray
+    const docTrayObserver = new MutationObserver(() => {
+      if (result.classList.contains('visible')) {
+        const text = analysisBox.textContent || '';
+        const typeMatch = text.match(/Document extracted successfully — (\S+)/);
+        if (typeMatch) {
+          const dtype = typeMatch[1];
+          const labelMatch = text.match(/(?:Employer|Payer|Broker):\s+(.+)/);
+          const entity = labelMatch ? labelMatch[1].trim() : dtype;
+          showDocTray(dtype, `${dtype} — ${entity}`);
+        }
+      }
+    });
+    docTrayObserver.observe(result, { attributes: true, attributeFilter: ['class'] });
+
+    clearDocsBtn.addEventListener('click', async () => {
+      if (!confirm('Clear all loaded documents and start fresh?')) return;
+      await fetch('/clear-documents', {
+        method: 'POST',
+        headers: { 'X-Api-Token': SESSION_TOKEN },
+      });
+      docList.innerHTML = '';
+      docTray.style.display = 'none';
+      calcCard.classList.remove('visible');
+      pdfCard.classList.remove('visible');
+      calcResult.classList.remove('visible');
+      calcResult.innerHTML = '';
+    });
+  </script>
+
+</body>
+</html>
