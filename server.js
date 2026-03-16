@@ -278,17 +278,8 @@ app.use((req, res, next) => {
   next();
 });
 
-// ── Rate limiting — 10 requests per hour per IP ───────────────────────────────
-const limiter = rateLimit({
-  windowMs:        60 * 60 * 1000,
-  max:             10,
-  standardHeaders: true,
-  legacyHeaders:   false,
-  handler: (req, res) => {
-    audit.log('RATE_LIMIT_TRIGGERED', { ip: (req.ip || '').substring(0, 15) });
-    res.status(429).json({ success: false, error: 'Too many requests. Please try again in an hour.' });
-  },
-});
+// Rate limiting disabled for local development
+const limiter = rateLimit({ windowMs: 60 * 1000, max: 10000 });
 app.use('/analyze', limiter);
 
 // ── AC-2 / AC-3: Token authentication middleware ──────────────────────────────
