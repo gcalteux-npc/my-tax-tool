@@ -11,13 +11,21 @@ function parseDollar(str) {
 
 /**
  * Searches text for a dollar amount near a given label pattern.
- * Looks for the label followed by an amount on the same or next line,
- * and also for an amount followed by the label.
+ * Handles three layouts:
+ *   1. Dotted leader on same line: "Label.........27.71"
+ *   2. Label followed by amount within 60 chars
+ *   3. Amount on the line immediately before the label
  */
 function extractAmountNear(text, labelPattern) {
-  const dollarPattern = /\$?[\d,]+(?:\.\d{1,2})?/;
+  // Dotted-leader layout (consolidated 1099s): label followed by dots then amount on same line
+  const dottedPattern = new RegExp(
+    labelPattern.source + /[.\s]{2,}(\d[\d,]*\.\d{2})/.source,
+    labelPattern.flags
+  );
+  const dottedMatch = text.match(dottedPattern);
+  if (dottedMatch) return parseDollar(dottedMatch[1]);
 
-  // Label followed by amount — require decimal to avoid matching bare box numbers (e.g. "18")
+  // Label followed by amount within 60 chars (standard layout)
   const forwardPattern = new RegExp(
     labelPattern.source + /[\s\S]{0,60}?(\$?[\d,]+\.\d{1,2})/.source,
     labelPattern.flags
@@ -25,9 +33,9 @@ function extractAmountNear(text, labelPattern) {
   const forwardMatch = text.match(forwardPattern);
   if (forwardMatch) return parseDollar(forwardMatch[1]);
 
-  // Amount followed by label — \s includes newlines so multi-line layouts are matched
+  // Amount on the line immediately before the label (W-2 box layout)
   const backwardPattern = new RegExp(
-    /(\$?[\d,]+\.\d{1,2})/.source + /\s{0,30}/.source + labelPattern.source,
+    /(\$?[\d,]+\.\d{1,2})[ \t]*\n[ \t]*/.source + labelPattern.source,
     labelPattern.flags
   );
   const backwardMatch = text.match(backwardPattern);
@@ -141,17 +149,24 @@ function extract1099DIV(text) {
   const payerName = extractTextNear(text, /payer'?s?\s+name/i);
 
   const ordinaryDividends =
+    extractAmountNear(text, /1a\s+total\s+ordinary\s+dividends/i) ||
     extractAmountNear(text, /(?:box\s*1a\b|total\s+ordinary\s+dividends)/i) ||
     extractAmountNear(text, /ordinary\s+dividends/i);
 
   const qualifiedDividends =
+    extractAmountNear(text, /1b\s+qualified\s+dividends/i) ||
     extractAmountNear(text, /(?:box\s*1b\b|qualified\s+dividends)/i);
+
+  const section199ADividends =
+    extractAmountNear(text, /(?:box\s*5\b|section\s*199\s*a\s+dividends)/i) ||
+    extractAmountNear(text, /199\s*a\s+dividends/i);
 
   return {
     type: '1099-DIV',
     payerName,
     ordinaryDividends,
     qualifiedDividends,
+    section199ADividends,
   };
 }
 

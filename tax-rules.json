@@ -53,6 +53,11 @@
       { "rate": 0.00, "min": 0,      "max": 96700  },
       { "rate": 0.15, "min": 96701,  "max": 600050 },
       { "rate": 0.20, "min": 600051, "max": null   }
+    ],
+    "head_of_household": [
+      { "rate": 0.00, "min": 0,      "max": 64750  },
+      { "rate": 0.15, "min": 64751,  "max": 566700 },
+      { "rate": 0.20, "min": 566701, "max": null   }
     ]
   },
 

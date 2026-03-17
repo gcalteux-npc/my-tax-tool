@@ -40,7 +40,7 @@ function calculate(docs, filingStatus) {
 
   // ── 1. Collect income components ──────────────────────────────────────────
   let w2Wages = 0, federalWithheld = 0, interestIncome = 0;
-  let ordinaryDividends = 0, seIncome = 0, shortTermGains = 0, longTermGains = 0;
+  let ordinaryDividends = 0, qualifiedDividends = 0, section199ADividends = 0, seIncome = 0, shortTermGains = 0, longTermGains = 0;
 
   for (const doc of docs) {
     const dtype = doc.type || '';
@@ -50,7 +50,9 @@ function calculate(docs, filingStatus) {
     } else if (dtype === '1099-INT') {
       interestIncome  += doc.interestIncome     || 0;
     } else if (dtype === '1099-DIV') {
-      ordinaryDividends += doc.ordinaryDividends || 0;
+      ordinaryDividends    += doc.ordinaryDividends    || 0;
+      qualifiedDividends   += doc.qualifiedDividends   || 0;
+      section199ADividends += doc.section199ADividends || 0;
     } else if (dtype === '1099-NEC') {
       seIncome        += doc.nonemployeeCompensation || 0;
     } else if (dtype === '1099-B') {
@@ -68,7 +70,8 @@ function calculate(docs, filingStatus) {
     }
   }
 
-  const grossIncome = w2Wages + interestIncome + ordinaryDividends + seIncome + shortTermGains;
+  const netCapGain  = shortTermGains + longTermGains;
+  const grossIncome = w2Wages + interestIncome + ordinaryDividends + seIncome + netCapGain;
 
   // ── 2. SE tax ──────────────────────────────────────────────────────────────
   let seTax = 0, halfSeDeduction = 0;
@@ -82,32 +85,44 @@ function calculate(docs, filingStatus) {
   const qbiPhaseOutBegin = fsKey === 'married_filing_jointly'
     ? qbiRules.phase_out_mfj.begins
     : qbiRules.phase_out_single.begins;
-  const roughAgi    = grossIncome - halfSeDeduction;
-  let qbiDeduction  = 0;
-  if (seIncome > 0 && roughAgi <= qbiPhaseOutBegin) {
-    qbiDeduction = 0.20 * seIncome;
-  }
-
-  // ── 4. AGI ─────────────────────────────────────────────────────────────────
-  const agi = grossIncome - halfSeDeduction - qbiDeduction;
+  // ── 4. AGI — only above-the-line deductions (half SE tax) ────────────────
+  const agi = grossIncome - halfSeDeduction;
 
   // ── 5. Standard deduction ──────────────────────────────────────────────────
   const standardDeduction = rules.standard_deductions[fsKey];
 
-  // ── 6. Taxable income ──────────────────────────────────────────────────────
-  const taxableIncome = Math.max(0, agi - standardDeduction);
-
-  // ── 7. Ordinary income tax ─────────────────────────────────────────────────
-  const ordinaryTax = bracketTax(taxableIncome, rules.federal_income_tax_brackets[fsKey]);
-
-  // ── 8. LTCG tax ────────────────────────────────────────────────────────────
-  let ltcgTax = 0;
-  if (longTermGains > 0) {
-    const ltcgFs = fsKey === 'head_of_household' ? 'single' : fsKey;
-    if (rules.long_term_capital_gains[ltcgFs]) {
-      ltcgTax = bracketTax(longTermGains, rules.long_term_capital_gains[ltcgFs]);
-    }
+  // ── 6. QBI deduction (below-the-line, reduces taxable income not AGI) ─────
+  // SE income: 20% deduction subject to phase-out above threshold
+  // Section 199A dividends: 20% deduction, no phase-out
+  let qbiDeduction = 0;
+  if (seIncome > 0 && agi <= qbiPhaseOutBegin) {
+    qbiDeduction += 0.20 * seIncome;
   }
+  qbiDeduction += 0.20 * section199ADividends;
+
+  // ── 7. Taxable income ──────────────────────────────────────────────────────
+  const taxableIncome = Math.max(0, agi - standardDeduction - qbiDeduction);
+
+  // ── 8. Ordinary vs preferential income split ──────────────────────────────
+  // Qualified dividends and net LTCG are taxed at preferential (LTCG) rates.
+  // Non-qualified dividends (ordinary - qualified) and short-term gains are
+  // taxed at ordinary rates. Preferential income is stacked on top of ordinary
+  // income to determine which LTCG bracket applies.
+  const preferentialIncome = Math.min(
+    qualifiedDividends + Math.max(0, longTermGains),
+    taxableIncome
+  );
+  const ordinaryTaxable = Math.max(0, taxableIncome - preferentialIncome);
+
+  // ── 7. Ordinary income tax (on non-preferential income only) ──────────────
+  const ordinaryTax = bracketTax(ordinaryTaxable, rules.federal_income_tax_brackets[fsKey]);
+
+  // ── 8. LTCG / qualified dividend tax (stacked on top of ordinary income) ──
+  const ltcgBrackets = rules.long_term_capital_gains[fsKey];
+  const ltcgTax = ltcgBrackets
+    ? bracketTax(ordinaryTaxable + preferentialIncome, ltcgBrackets) -
+      bracketTax(ordinaryTaxable, ltcgBrackets)
+    : 0;
 
   // ── 9. NIIT ────────────────────────────────────────────────────────────────
   const niitRules     = rules.other_key_numbers.net_investment_income_tax;
@@ -141,9 +156,12 @@ function calculate(docs, filingStatus) {
     w2Wages,
     interestIncome,
     ordinaryDividends,
+    qualifiedDividends,
+    section199ADividends,
     seIncome,
     shortTermGains,
     longTermGains,
+    netCapGain,
     grossIncome,
     seTax,
     halfSeDeduction,
